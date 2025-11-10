@@ -2,74 +2,74 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vitvisor Docs</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Vitvisor Docs Futurista</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #1E88E5;
-  --secondary: #42A5F5;
-  --bg: #f4f6f9;
-  --card-bg: #fff;
-  --card-hover: #e3f2fd;
-  --toolbar-bg: #1976D2;
-  --toolbar-btn: #2196F3;
-  --toolbar-btn-hover: #1565C0;
-  --text-color: #222;
-  --border-radius: 12px;
+  --primary: #00f0ff;
+  --secondary: #ff00f7;
+  --bg: #0a0a0f;
+  --card-bg: #1a1a2e;
+  --card-hover: #162447;
+  --toolbar-bg: #0f3460;
+  --toolbar-btn: #533483;
+  --toolbar-btn-hover: #6a0dad;
+  --text-color: #e0f7fa;
+  --border-radius: 16px;
+  --shadow-glow: 0 0 15px rgba(0,255,255,0.6), 0 0 25px rgba(255,0,255,0.4);
 }
 
 * { box-sizing: border-box; }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Orbitron', sans-serif;
   margin: 0;
   background: var(--bg);
   color: var(--text-color);
 }
 
 header {
-  background: var(--primary);
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
   color: white;
-  padding: 18px;
+  padding: 20px;
   text-align: center;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 0 20px rgba(0,255,255,0.6);
+  text-shadow: 0 0 8px rgba(255,0,255,0.4);
 }
 
-#home, #editor {
-  display: none;
-  padding: 25px;
-}
+#home, #editor { display: none; padding: 25px; }
 #home.active, #editor.active { display: block; }
 
 button {
-  font-family: inherit;
+  font-family: 'Orbitron', sans-serif;
   background: var(--toolbar-btn);
-  color: white;
+  color: var(--text-color);
   border: none;
   border-radius: var(--border-radius);
-  padding: 10px 14px;
+  padding: 10px 16px;
   cursor: pointer;
   font-size: 14px;
-  transition: 0.3s;
+  transition: 0.3s all;
+  box-shadow: var(--shadow-glow);
 }
-button:hover { background: var(--toolbar-btn-hover); }
+button:hover { background: var(--toolbar-btn-hover); transform: translateY(-2px) scale(1.05); }
 
 #fileList {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px;
-  margin-top: 20px;
+  gap: 20px;
+  margin-top: 25px;
 }
 
 .folderCard, .docCard {
   background: var(--card-bg);
   border-radius: var(--border-radius);
   padding: 20px;
-  width: 150px;
-  height: 150px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  width: 160px;
+  height: 160px;
+  box-shadow: var(--shadow-glow);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -78,29 +78,26 @@ button:hover { background: var(--toolbar-btn-hover); }
   text-align: center;
   transition: 0.3s transform, 0.3s background;
   position: relative;
+  color: var(--text-color);
 }
-.folderCard:hover, .docCard:hover {
-  transform: translateY(-5px);
-  background: var(--card-hover);
-}
-.folderCard span, .docCard span {
-  font-size: 50px;
-  margin-bottom: 10px;
-}
+.folderCard:hover, .docCard:hover { transform: translateY(-5px) scale(1.05); background: var(--card-hover); }
+.folderCard span, .docCard span { font-size: 55px; margin-bottom: 10px; }
+
 .deleteBtn {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #E53935;
+  top: 6px;
+  right: 6px;
+  background: #ff0040;
   font-size: 14px;
   padding: 4px 6px;
   border-radius: var(--border-radius);
+  box-shadow: 0 0 12px rgba(255,0,64,0.7);
 }
 
 #editorToolbar {
   background: var(--toolbar-bg);
-  padding: 12px;
-  border-bottom: 1px solid #ccc;
+  padding: 14px;
+  border-bottom: 1px solid #333;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -109,50 +106,36 @@ button:hover { background: var(--toolbar-btn-hover); }
 }
 #editorToolbar button, #editorToolbar select, #editorToolbar input[type=color] {
   background: var(--toolbar-btn);
-  color: white;
+  color: var(--text-color);
   border: none;
   border-radius: var(--border-radius);
   padding: 6px 12px;
   cursor: pointer;
+  box-shadow: var(--shadow-glow);
 }
-#editorToolbar input[type=color] {
-  width: 36px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid #ccc;
-  cursor: pointer;
-}
-#editorToolbar button:hover, #editorToolbar select:hover { background: var(--toolbar-btn-hover); }
+#editorToolbar input[type=color] { width: 36px; height: 28px; padding: 0; cursor: pointer; }
 
 #editorArea {
   width: 100%;
   height: 70vh;
-  padding: 28px;
-  background: var(--card-bg);
+  padding: 30px;
+  background: #111124;
   border-radius: var(--border-radius);
   outline: none;
   overflow-y: auto;
   margin-top: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-glow);
+  color: var(--text-color);
 }
 
-#docTitle {
-  margin: 18px 0;
-}
+#docTitle { margin: 18px 0; }
 
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
-table td, table th {
-  border: 1px solid #000;
-  padding: 8px;
-  text-align: center;
-}
+table { border-collapse: collapse; width: 100%; }
+table td, table th { border: 1px solid #00ffff; padding: 8px; text-align: center; color: var(--text-color); }
 </style>
 </head>
 <body>
-<header>📘 Vitvisor Docs</header>
+<header>🚀 Vitvisor Docs Futurista</header>
 
 <section id="home" class="active">
   <button id="newFolderBtn">📁 Nueva carpeta</button>
@@ -192,6 +175,7 @@ table td, table th {
 </section>
 
 <script>
+// Variables
 const home=document.getElementById('home');
 const editor=document.getElementById('editor');
 const fileList=document.getElementById('fileList');
@@ -209,7 +193,6 @@ document.addEventListener('keydown', e => { if(e.key==='Dead') e.preventDefault(
 function loadFiles(){
   fileList.innerHTML='';
   const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
-
   data.forEach((item,i)=>{
     const div=document.createElement('div');
     div.className=item.type==='folder'?'folderCard':'docCard';
@@ -296,14 +279,14 @@ document.getElementById('addTableBtn').onclick=()=>{
   const rows=parseInt(prompt('Número de filas:',2)); if(!rows) return;
   const cols=parseInt(prompt('Número de columnas:',2)); if(!cols) return;
   const table=document.createElement('table');
-  table.style.border='1px solid #000';
+  table.style.border='1px solid #00ffff';
   table.style.width='100%';
   for(let r=0;r<rows;r++){
     const tr=document.createElement('tr');
     for(let c=0;c<cols;c++){
       const td=document.createElement('td'); td.textContent='Texto';
       td.contentEditable=true;
-      td.style.border='1px solid #000';
+      td.style.border='1px solid #00ffff';
       td.onclick=()=>{
         const bg=prompt('Color de fondo (hex o nombre):',td.style.backgroundColor); if(bg) td.style.backgroundColor=bg;
       };
