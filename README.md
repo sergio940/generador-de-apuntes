@@ -2,267 +2,183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Word Local - Vitvisor Notes</title>
+<title>Vitvisor Docs</title>
 <style>
-    * { box-sizing: border-box; }
-    body {
-        margin: 0;
-        font-family: "Segoe UI", sans-serif;
-        background-color: #f1f5f9;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    header {
-        background-color: #1e293b;
-        color: white;
-        padding: 15px 30px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size: 20px;
-        font-weight: bold;
-    }
-
-    /* Pantalla inicial */
-    #inicio, #editorView {
-        flex: 1;
-        display: none;
-    }
-    #inicio.active, #editorView.active {
-        display: flex;
-    }
-
-    #inicio {
-        justify-content: center;
-        align-items: flex-start;
-        background-color: #f8fafc;
-        padding: 50px;
-        gap: 40px;
-        flex-wrap: wrap;
-        overflow-y: auto;
-    }
-
-    .doc-card {
-        width: 220px;
-        height: 260px;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 15px;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .doc-card:hover {
-        transform: scale(1.03);
-        border: 3px solid #0ea5e9;
-    }
-
-    .doc-card h3 {
-        margin: 0;
-        font-size: 16px;
-        color: #0f172a;
-        text-align: center;
-    }
-
-    .preview {
-        background-color: #f1f5f9;
-        flex-grow: 1;
-        padding: 10px;
-        font-size: 13px;
-        overflow: hidden;
-        color: #475569;
-        border-radius: 6px;
-    }
-
-    /* Botón de nuevo documento */
-    .nuevo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 40px;
-        color: #0ea5e9;
-        background-color: white;
-        border: 3px dashed #0ea5e9;
-        transition: 0.2s;
-    }
-    .nuevo:hover {
-        background-color: #e0f2fe;
-    }
-
-    /* Editor */
-    #toolbar {
-        background-color: #0ea5e9;
-        display: flex;
-        gap: 10px;
-        padding: 10px;
-        flex-wrap: wrap;
-    }
-
-    #toolbar button {
-        background: white;
-        border: none;
-        padding: 8px 14px;
-        border-radius: 6px;
-        color: #0ea5e9;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    #toolbar button:hover {
-        background-color: #e0f2fe;
-    }
-
-    #editor {
-        flex: 1;
-        padding: 20px;
-        background-color: white;
-        overflow-y: auto;
-        line-height: 1.6;
-        font-size: 17px;
-        border: none;
-        outline: none;
-    }
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  background: #f2f4f8;
+  color: #222;
+}
+header {
+  background: #0078d7;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+}
+#home, #editor {
+  display: none;
+  padding: 30px;
+}
+#home.active, #editor.active {
+  display: block;
+}
+#newDocBtn, #newFolderBtn {
+  background: #0078d7;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+.folder, .document {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+#editorToolbar {
+  background: #fff;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  gap: 10px;
+}
+#editorToolbar button {
+  background: #0078d7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+#editorArea {
+  width: 100%;
+  height: 70vh;
+  padding: 20px;
+  background: white;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow-y: auto;
+}
 </style>
 </head>
 <body>
+<header>📘 Vitvisor Docs</header>
 
-<header>📝 Vitvisor Word Local</header>
+<!-- PANTALLA PRINCIPAL -->
+<section id="home" class="active">
+  <button id="newFolderBtn">Nueva carpeta 📁</button>
+  <button id="newDocBtn">Nuevo documento 📝</button>
+  <h2>Tus archivos</h2>
+  <div id="fileList"></div>
+</section>
 
-<!-- Vista inicial -->
-<div id="inicio" class="active" id="homeView"></div>
+<!-- EDITOR -->
+<section id="editor">
+  <div id="editorToolbar">
+    <button id="backBtn">🏠 Inicio</button>
+    <button id="saveBtn">💾 Guardar</button>
+    <button id="addImgBtn">🖼️ Insertar imagen</button>
+    <button id="exportBtn">📤 Exportar Word</button>
+  </div>
+  <h2 id="docTitle"></h2>
+  <div id="editorArea" contenteditable="true"></div>
+</section>
 
-<!-- Vista del editor -->
-<div id="editorView">
-    <div id="toolbar">
-        <button onclick="guardarArchivo()">💾 Guardar</button>
-        <button onclick="volverInicio()">🏠 Inicio</button>
-        <button onclick="document.execCommand('bold',false,null)">𝐍</button>
-        <button onclick="document.execCommand('italic',false,null)">𝑰</button>
-        <button onclick="document.execCommand('underline',false,null)">U̲</button>
-        <button onclick="insertarImagen()">🖼️ Imagen</button>
-        <button onclick="exportarDOC()">⬇️ Exportar Word</button>
-    </div>
-    <div id="editor" contenteditable="true"></div>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/docx@8.1.0/build/index.umd.js"></script>
 <script>
-let documentos = JSON.parse(localStorage.getItem("word_vitvisor_docs")) || {};
-let archivoActual = null;
+const home = document.getElementById('home');
+const editor = document.getElementById('editor');
+const newDocBtn = document.getElementById('newDocBtn');
+const fileList = document.getElementById('fileList');
+const editorArea = document.getElementById('editorArea');
+const docTitle = document.getElementById('docTitle');
+let currentDoc = null;
 
-function guardarDatos() {
-    localStorage.setItem("word_vitvisor_docs", JSON.stringify(documentos));
+// Cargar archivos
+function loadFiles() {
+  fileList.innerHTML = '';
+  const docs = JSON.parse(localStorage.getItem('vitvisor_docs') || '[]');
+  docs.forEach((d, i) => {
+    const div = document.createElement('div');
+    div.className = 'document';
+    div.textContent = d.title;
+    div.onclick = () => openDoc(i);
+    fileList.appendChild(div);
+  });
 }
 
-function renderInicio() {
-    const contenedor = document.getElementById("inicio");
-    contenedor.innerHTML = "";
+// Nuevo documento
+newDocBtn.onclick = () => {
+  const title = prompt('Nombre del documento:');
+  if (!title) return;
+  const docs = JSON.parse(localStorage.getItem('vitvisor_docs') || '[]');
+  docs.push({ title, content: '' });
+  localStorage.setItem('vitvisor_docs', JSON.stringify(docs));
+  loadFiles();
+};
 
-    // Botón nuevo documento
-    const nuevo = document.createElement("div");
-    nuevo.className = "doc-card nuevo";
-    nuevo.innerHTML = "+";
-    nuevo.onclick = nuevoDocumento;
-    contenedor.appendChild(nuevo);
-
-    // Mostrar documentos guardados
-    for (let nombre in documentos) {
-        const doc = document.createElement("div");
-        doc.className = "doc-card";
-        doc.onclick = () => abrirDocumento(nombre);
-
-        const titulo = document.createElement("h3");
-        titulo.textContent = nombre;
-
-        const prev = document.createElement("div");
-        prev.className = "preview";
-        prev.innerHTML = documentos[nombre].substring(0, 200) || "<i>Vacío...</i>";
-
-        doc.appendChild(titulo);
-        doc.appendChild(prev);
-        contenedor.appendChild(doc);
-    }
+// Abrir documento
+function openDoc(index) {
+  const docs = JSON.parse(localStorage.getItem('vitvisor_docs') || '[]');
+  currentDoc = index;
+  docTitle.textContent = docs[index].title;
+  editorArea.innerHTML = docs[index].content;
+  home.classList.remove('active');
+  editor.classList.add('active');
 }
 
-function nuevoDocumento() {
-    const nombre = prompt("Nombre del nuevo documento:");
-    if (nombre && !documentos[nombre]) {
-        documentos[nombre] = "";
-        archivoActual = nombre;
-        cambiarVista("editor");
-        document.getElementById("editor").innerHTML = "";
-        guardarDatos();
-        renderInicio();
-    } else if (documentos[nombre]) {
-        alert("Ya existe un documento con ese nombre.");
-    }
-}
+// Guardar
+document.getElementById('saveBtn').onclick = () => {
+  if (currentDoc === null) return;
+  const docs = JSON.parse(localStorage.getItem('vitvisor_docs') || '[]');
+  docs[currentDoc].content = editorArea.innerHTML;
+  localStorage.setItem('vitvisor_docs', JSON.stringify(docs));
+  alert('Documento guardado correctamente 💾');
+};
 
-function abrirDocumento(nombre) {
-    archivoActual = nombre;
-    cambiarVista("editor");
-    document.getElementById("editor").innerHTML = documentos[nombre];
-}
+// Volver al inicio
+document.getElementById('backBtn').onclick = () => {
+  editor.classList.remove('active');
+  home.classList.add('active');
+  loadFiles();
+};
 
-function guardarArchivo() {
-    if (!archivoActual) return;
-    documentos[archivoActual] = document.getElementById("editor").innerHTML;
-    guardarDatos();
-    alert("✅ Documento guardado correctamente.");
-}
+// Insertar imagen
+document.getElementById('addImgBtn').onclick = () => {
+  const url = prompt('URL de la imagen:');
+  if (url) {
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.maxWidth = '100%';
+    editorArea.appendChild(img);
+  }
+};
 
-function volverInicio() {
-    guardarArchivo();
-    cambiarVista("inicio");
-    renderInicio();
-}
+// Exportar a Word
+document.getElementById('exportBtn').onclick = async () => {
+  if (!window.docx) return alert('No se puede exportar, la librería no cargó.');
+  const { Document, Packer, Paragraph } = window.docx;
+  const text = editorArea.innerText;
+  const doc = new Document({
+    sections: [{ properties: {}, children: [new Paragraph(text)] }]
+  });
+  const blob = await Packer.toBlob(doc);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${docTitle.textContent}.docx`;
+  a.click();
+};
 
-function insertarImagen() {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = e => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            const img = document.createElement("img");
-            img.src = evt.target.result;
-            img.style.maxWidth = "400px";
-            img.style.display = "block";
-            img.style.margin = "10px 0";
-            document.getElementById("editor").appendChild(img);
-        };
-        reader.readAsDataURL(file);
-    };
-    input.click();
-}
-
-function exportarDOC() {
-    if (!archivoActual) return;
-    const contenido = document.getElementById("editor").innerHTML;
-    const blob = new Blob(['<html><body>' + contenido + '</body></html>'], { type: 'application/msword' });
-    const enlace = document.createElement("a");
-    enlace.href = URL.createObjectURL(blob);
-    enlace.download = archivoActual + ".doc";
-    enlace.click();
-}
-
-function cambiarVista(vista) {
-    document.getElementById("inicio").classList.remove("active");
-    document.getElementById("editorView").classList.remove("active");
-    if (vista === "inicio") document.getElementById("inicio").classList.add("active");
-    else document.getElementById("editorView").classList.add("active");
-}
-
-renderInicio();
+// Inicializar
+loadFiles();
 </script>
-
 </body>
 </html>
