@@ -2,21 +2,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vitvisor Docs Futurista</title>
+<title>Vitvisor Docs Futurista Claro</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary: #00f0ff;
-  --secondary: #ff00f7;
-  --bg: #0a0a0f;
-  --card-bg: #1a1a2e;
-  --card-hover: #162447;
-  --toolbar-bg: #0f3460;
-  --toolbar-btn: #533483;
-  --toolbar-btn-hover: #6a0dad;
-  --text-color: #e0f7fa;
+  --primary: #00cfff;
+  --secondary: #ff00d4;
+  --bg: #f0f4f8;
+  --card-bg: #ffffff;
+  --card-hover: #e0f0ff;
+  --toolbar-bg: #00bcd4;
+  --toolbar-btn: #0097a7;
+  --toolbar-btn-hover: #00796b;
+  --text-color: #0a0a0a;
   --border-radius: 16px;
-  --shadow-glow: 0 0 15px rgba(0,255,255,0.6), 0 0 25px rgba(255,0,255,0.4);
+  --shadow-glow: 0 0 15px rgba(0,192,255,0.5), 0 0 25px rgba(255,0,212,0.4);
 }
 
 * { box-sizing: border-box; }
@@ -35,8 +35,8 @@ header {
   text-align: center;
   font-size: 28px;
   font-weight: 700;
-  box-shadow: 0 0 20px rgba(0,255,255,0.6);
-  text-shadow: 0 0 8px rgba(255,0,255,0.4);
+  box-shadow: 0 0 20px rgba(0,192,255,0.5);
+  text-shadow: 0 0 8px rgba(255,0,212,0.4);
 }
 
 #home, #editor { display: none; padding: 25px; }
@@ -87,17 +87,17 @@ button:hover { background: var(--toolbar-btn-hover); transform: translateY(-2px)
   position: absolute;
   top: 6px;
   right: 6px;
-  background: #ff0040;
+  background: #ff0055;
   font-size: 14px;
   padding: 4px 6px;
   border-radius: var(--border-radius);
-  box-shadow: 0 0 12px rgba(255,0,64,0.7);
+  box-shadow: 0 0 12px rgba(255,0,85,0.7);
 }
 
 #editorToolbar {
   background: var(--toolbar-bg);
   padding: 14px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #ccc;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -119,7 +119,7 @@ button:hover { background: var(--toolbar-btn-hover); transform: translateY(-2px)
   width: 100%;
   height: 70vh;
   padding: 30px;
-  background: #111124;
+  background: #e6f2ff;
   border-radius: var(--border-radius);
   outline: none;
   overflow-y: auto;
@@ -131,11 +131,11 @@ button:hover { background: var(--toolbar-btn-hover); transform: translateY(-2px)
 #docTitle { margin: 18px 0; }
 
 table { border-collapse: collapse; width: 100%; }
-table td, table th { border: 1px solid #00ffff; padding: 8px; text-align: center; color: var(--text-color); }
+table td, table th { border: 1px solid #00cfff; padding: 8px; text-align: center; color: var(--text-color); }
 </style>
 </head>
 <body>
-<header>🚀 Vitvisor Docs Futurista</header>
+<header>🚀 Vitvisor Docs Futurista Claro</header>
 
 <section id="home" class="active">
   <button id="newFolderBtn">📁 Nueva carpeta</button>
@@ -279,14 +279,14 @@ document.getElementById('addTableBtn').onclick=()=>{
   const rows=parseInt(prompt('Número de filas:',2)); if(!rows) return;
   const cols=parseInt(prompt('Número de columnas:',2)); if(!cols) return;
   const table=document.createElement('table');
-  table.style.border='1px solid #00ffff';
+  table.style.border='1px solid #00cfff';
   table.style.width='100%';
   for(let r=0;r<rows;r++){
     const tr=document.createElement('tr');
     for(let c=0;c<cols;c++){
       const td=document.createElement('td'); td.textContent='Texto';
       td.contentEditable=true;
-      td.style.border='1px solid #00ffff';
+      td.style.border='1px solid #00cfff';
       td.onclick=()=>{
         const bg=prompt('Color de fondo (hex o nombre):',td.style.backgroundColor); if(bg) td.style.backgroundColor=bg;
       };
