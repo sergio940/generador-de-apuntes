@@ -2,106 +2,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vitvisor Docs - Álbum</title>
+<title>Vitvisor Docs</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+:root {
+  --primary: #1E88E5;
+  --secondary: #42A5F5;
+  --bg: #f4f6f9;
+  --card-bg: #fff;
+  --card-hover: #e3f2fd;
+  --toolbar-bg: #1976D2;
+  --toolbar-btn: #2196F3;
+  --toolbar-btn-hover: #1565C0;
+  --text-color: #222;
+  --border-radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
 body {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Roboto', sans-serif;
   margin: 0;
-  background: #f4f6f9;
-  color: #222;
+  background: var(--bg);
+  color: var(--text-color);
 }
+
 header {
-  background: #0078d7;
+  background: var(--primary);
   color: white;
-  padding: 15px;
+  padding: 18px;
   text-align: center;
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 26px;
+  font-weight: 700;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
+
 #home, #editor {
   display: none;
-  padding: 30px;
+  padding: 25px;
 }
-#home.active, #editor.active {
-  display: block;
-}
+#home.active, #editor.active { display: block; }
+
 button {
-  background: #0078d7;
+  font-family: inherit;
+  background: var(--toolbar-btn);
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 10px 15px;
+  border-radius: var(--border-radius);
+  padding: 10px 14px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   transition: 0.3s;
 }
-button:hover {
-  background: #005a9e;
-}
+button:hover { background: var(--toolbar-btn-hover); }
+
 #fileList {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 18px;
+  margin-top: 20px;
 }
+
 .folderCard, .docCard {
-  background: white;
-  border-radius: 12px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
   padding: 20px;
-  width: 140px;
-  height: 140px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  width: 150px;
+  height: 150px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   text-align: center;
-  transition: transform 0.2s;
+  transition: 0.3s transform, 0.3s background;
 }
 .folderCard:hover, .docCard:hover {
-  transform: scale(1.05);
-  background: #eef5ff;
+  transform: translateY(-5px);
+  background: var(--card-hover);
 }
 .folderCard span, .docCard span {
-  font-size: 40px;
+  font-size: 50px;
   margin-bottom: 10px;
 }
+
 #editorToolbar {
-  background: #fff;
-  padding: 10px;
+  background: var(--toolbar-bg);
+  padding: 12px;
   border-bottom: 1px solid #ccc;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 #editorToolbar button, #editorToolbar select, #editorToolbar input[type=color] {
-  background: #0078d7;
+  background: var(--toolbar-btn);
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
+  border-radius: var(--border-radius);
+  padding: 6px 12px;
   cursor: pointer;
 }
 #editorToolbar input[type=color] {
-  width: 40px;
-  height: 30px;
+  width: 36px;
+  height: 28px;
   padding: 0;
   border: 1px solid #ccc;
   cursor: pointer;
 }
+#editorToolbar button:hover, #editorToolbar select:hover { background: var(--toolbar-btn-hover); }
+
 #editorArea {
   width: 100%;
   height: 70vh;
-  padding: 30px;
-  background: white;
-  border: none;
+  padding: 28px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
   outline: none;
   overflow-y: auto;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+
 #docTitle {
-  margin: 15px 0;
+  margin: 18px 0;
 }
+
 table {
   border-collapse: collapse;
   width: 100%;
@@ -154,51 +182,51 @@ table td, table th {
 </section>
 
 <script>
-const home = document.getElementById('home');
-const editor = document.getElementById('editor');
-const fileList = document.getElementById('fileList');
-const editorArea = document.getElementById('editorArea');
-const docTitle = document.getElementById('docTitle');
-const colorPicker = document.getElementById('colorPicker');
-const fontSizeSelect = document.getElementById('fontSizeSelect');
-let currentDoc = null;
-let currentFolder = null;
+// Variables globales
+const home=document.getElementById('home');
+const editor=document.getElementById('editor');
+const fileList=document.getElementById('fileList');
+const editorArea=document.getElementById('editorArea');
+const docTitle=document.getElementById('docTitle');
+const colorPicker=document.getElementById('colorPicker');
+const fontSizeSelect=document.getElementById('fontSizeSelect');
+let currentDoc=null;
+let currentFolder=null;
 
 // Evitar caracteres extraños
-document.addEventListener('keydown', e => { if (e.key==='Dead') e.preventDefault(); });
+document.addEventListener('keydown', e => { if(e.key==='Dead') e.preventDefault(); });
 
 // Cargar archivos
-function loadFiles() {
-  fileList.innerHTML = '';
-  const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
-
+function loadFiles(){
+  fileList.innerHTML='';
+  const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
   data.forEach((item,i)=>{
-    const div = document.createElement('div');
-    div.className = item.type==='folder'?'folderCard':'docCard';
-    div.innerHTML = `<span>${item.type==='folder'?'📁':'📝'}</span>${item.name}`;
-    div.onclick = ()=>{ item.type==='folder'?openFolder(i):openDoc(i,null); };
+    const div=document.createElement('div');
+    div.className=item.type==='folder'?'folderCard':'docCard';
+    div.innerHTML=`<span>${item.type==='folder'?'📁':'📝'}</span>${item.name}`;
+    div.onclick=()=>{item.type==='folder'?openFolder(i):openDoc(i,null);};
     fileList.appendChild(div);
   });
 }
 
 // Crear carpeta
-document.getElementById('newFolderBtn').onclick = ()=>{
+document.getElementById('newFolderBtn').onclick=()=>{
   const name=prompt('Nombre de la carpeta:'); if(!name) return;
   const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
   data.push({type:'folder',name,files:[]});
   localStorage.setItem('vitvisor_files',JSON.stringify(data));
   loadFiles();
-};
+}
 
 // Crear documento
-document.getElementById('newDocBtn').onclick = ()=>{
+document.getElementById('newDocBtn').onclick=()=>{
   const name=prompt('Nombre del documento:'); if(!name) return;
   const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
   if(currentFolder!==null) data[currentFolder].files.push({type:'doc',name,content:''});
   else data.push({type:'doc',name,content:''});
   localStorage.setItem('vitvisor_files',JSON.stringify(data));
   loadFiles();
-};
+}
 
 // Abrir carpeta
 function openFolder(index){
@@ -228,50 +256,51 @@ function openDoc(docIndex, folderIndex){
 }
 
 // Guardar
-document.getElementById('saveBtn').onclick = ()=>{
+document.getElementById('saveBtn').onclick=()=>{
   if(currentDoc===null) return;
   const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
   if(currentFolder!==null) data[currentFolder].files[currentDoc].content=editorArea.innerHTML;
   else data[currentDoc].content=editorArea.innerHTML;
   localStorage.setItem('vitvisor_files',JSON.stringify(data));
   alert('Documento guardado 💾');
-};
+}
 
 // Imagen
-document.getElementById('addImgBtn').onclick = ()=>{
+document.getElementById('addImgBtn').onclick=()=>{
   const url=prompt('Introduce la URL de la imagen:'); if(url) document.execCommand('insertImage',false,url);
-};
+}
 
 // Tabla
-document.getElementById('addTableBtn').onclick = ()=>{
+document.getElementById('addTableBtn').onclick=()=>{
   const rows=parseInt(prompt('Número de filas:',2)); if(!rows) return;
   const cols=parseInt(prompt('Número de columnas:',2)); if(!cols) return;
   const table=document.createElement('table');
+  table.style.border='1px solid #000';
+  table.style.width='100%';
   for(let r=0;r<rows;r++){
     const tr=document.createElement('tr');
     for(let c=0;c<cols;c++){
       const td=document.createElement('td'); td.textContent='Texto';
-      td.contentEditable=true; td.onclick=()=>{
-        const bg=prompt('Color de fondo (hex o nombre):',td.style.backgroundColor);
-        if(bg) td.style.backgroundColor=bg;
+      td.contentEditable=true;
+      td.style.border='1px solid #000';
+      td.onclick=()=>{
+        const bg=prompt('Color de fondo (hex o nombre):',td.style.backgroundColor); if(bg) td.style.backgroundColor=bg;
       };
       tr.appendChild(td);
     }
     table.appendChild(tr);
   }
   editorArea.appendChild(table);
-};
+}
 
 // Color de texto
-colorPicker.onchange = ()=>document.execCommand('foreColor', false, colorPicker.value);
+colorPicker.onchange=()=>document.execCommand('foreColor',false,colorPicker.value);
 
 // Tamaño de letra
-fontSizeSelect.onchange = ()=>{ const size=fontSizeSelect.value; if(size) document.execCommand('fontSize', false, size); };
+fontSizeSelect.onchange=()=>{ const size=fontSizeSelect.value; if(size) document.execCommand('fontSize',false,size); };
 
 // Volver al inicio
-document.getElementById('backBtn').onclick = ()=>{
-  editor.classList.remove('active'); home.classList.add('active'); loadFiles();
-};
+document.getElementById('backBtn').onclick=()=>{ editor.classList.remove('active'); home.classList.add('active'); loadFiles(); }
 
 // Formato
 function format(cmd,value=null){ document.execCommand(cmd,false,value); }
