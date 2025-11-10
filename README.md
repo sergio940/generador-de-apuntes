@@ -126,6 +126,7 @@ button:hover { background: var(--toolbar-btn-hover); transform: translateY(-2px)
   margin-top: 10px;
   box-shadow: var(--shadow-glow);
   color: var(--text-color);
+  font-family: 'Orbitron', sans-serif;
 }
 
 #docTitle { margin: 18px 0; }
@@ -165,6 +166,14 @@ table td, table th { border: 1px solid #00cfff; padding: 8px; text-align: center
       <option value="6">Muy grande</option>
       <option value="7">Enorme</option>
     </select>
+    <select id="fontFamilySelect">
+      <option value="">Fuente</option>
+      <option value="Arial">Arial</option>
+      <option value="Consolas">Consolas</option>
+      <option value="Times New Roman">Times New Roman</option>
+      <option value="'Courier New'">Courier New</option>
+      <option value="'Lucida Console'">Lucida Console</option>
+    </select>
     <input type="color" id="colorPicker" title="Color de texto">
     <button id="addImgBtn">🖼️ Imagen</button>
     <button id="addTableBtn">🧾 Tabla</button>
@@ -183,6 +192,7 @@ const editorArea=document.getElementById('editorArea');
 const docTitle=document.getElementById('docTitle');
 const colorPicker=document.getElementById('colorPicker');
 const fontSizeSelect=document.getElementById('fontSizeSelect');
+const fontFamilySelect=document.getElementById('fontFamilySelect');
 let currentDoc=null;
 let currentFolder=null;
 
@@ -302,6 +312,12 @@ colorPicker.onchange=()=>document.execCommand('foreColor',false,colorPicker.valu
 
 // Tamaño de letra
 fontSizeSelect.onchange=()=>{ const size=fontSizeSelect.value; if(size) document.execCommand('fontSize',false,size); };
+
+// Fuente
+fontFamilySelect.onchange=()=>{ 
+  const font=fontFamilySelect.value; 
+  if(font) document.execCommand('fontName',false,font); 
+};
 
 // Volver al inicio
 document.getElementById('backBtn').onclick=()=>{ editor.classList.remove('active'); home.classList.add('active'); loadFiles(); }
