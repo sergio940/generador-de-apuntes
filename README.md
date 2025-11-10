@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vitvisor Docs</title>
+<title>Vitvisor Docs - Álbum</title>
 <style>
 body {
   font-family: 'Segoe UI', sans-serif;
@@ -38,16 +38,33 @@ button {
 button:hover {
   background: #005a9e;
 }
-.folder, .document {
-  background: white;
-  border-radius: 10px;
-  padding: 15px;
-  margin: 10px 0;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  cursor: pointer;
+#fileList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
 }
-.folder:hover, .document:hover {
+.folderCard, .docCard {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  width: 140px;
+  height: 140px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s;
+}
+.folderCard:hover, .docCard:hover {
+  transform: scale(1.05);
   background: #eef5ff;
+}
+.folderCard span, .docCard span {
+  font-size: 40px;
+  margin-bottom: 10px;
 }
 #editorToolbar {
   background: #fff;
@@ -81,17 +98,24 @@ button:hover {
   border: none;
   outline: none;
   overflow-y: auto;
-  transition: transform 0.2s ease;
 }
 #docTitle {
   margin: 15px 0;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+table td, table th {
+  border: 1px solid #000;
+  padding: 8px;
+  text-align: center;
 }
 </style>
 </head>
 <body>
 <header>📘 Vitvisor Docs</header>
 
-<!-- PANTALLA PRINCIPAL -->
 <section id="home" class="active">
   <button id="newFolderBtn">📁 Nueva carpeta</button>
   <button id="newDocBtn">📝 Nuevo documento</button>
@@ -99,7 +123,6 @@ button:hover {
   <div id="fileList"></div>
 </section>
 
-<!-- EDITOR -->
 <section id="editor">
   <div id="editorToolbar">
     <button id="backBtn">🏠 Inicio</button>
@@ -111,17 +134,19 @@ button:hover {
     <button onclick="format('justifyLeft')">↞</button>
     <button onclick="format('justifyCenter')">↔</button>
     <button onclick="format('justifyRight')">↠</button>
-    <select onchange="format('fontSize', this.value)">
-      <option value="">Tamaño</option>
+    <select id="fontSizeSelect">
+      <option value="">Tamaño letra</option>
+      <option value="1">Muy pequeño</option>
       <option value="2">Pequeño</option>
       <option value="3">Normal</option>
+      <option value="4">Mediano</option>
       <option value="5">Grande</option>
-      <option value="7">Muy grande</option>
+      <option value="6">Muy grande</option>
+      <option value="7">Enorme</option>
     </select>
     <input type="color" id="colorPicker" title="Color de texto">
-    <button id="zoomInBtn">🔍+</button>
-    <button id="zoomOutBtn">🔍-</button>
     <button id="addImgBtn">🖼️ Imagen</button>
+    <button id="addTableBtn">🧾 Tabla</button>
     <button id="saveBtn">💾 Guardar</button>
   </div>
   <h2 id="docTitle"></h2>
@@ -135,159 +160,122 @@ const fileList = document.getElementById('fileList');
 const editorArea = document.getElementById('editorArea');
 const docTitle = document.getElementById('docTitle');
 const colorPicker = document.getElementById('colorPicker');
+const fontSizeSelect = document.getElementById('fontSizeSelect');
 let currentDoc = null;
 let currentFolder = null;
-let zoom = 1;
 
-// Evitar caracteres extraños (bug primera letra)
-document.addEventListener('keydown', e => {
-  if (e.key === 'Dead') e.preventDefault();
-});
+// Evitar caracteres extraños
+document.addEventListener('keydown', e => { if (e.key==='Dead') e.preventDefault(); });
 
 // Cargar archivos
 function loadFiles() {
   fileList.innerHTML = '';
   const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
 
-  data.forEach((item, i) => {
+  data.forEach((item,i)=>{
     const div = document.createElement('div');
-    div.className = item.type === 'folder' ? 'folder' : 'document';
-    div.textContent = item.name;
-    div.onclick = () => {
-      if (item.type === 'folder') {
-        openFolder(i);
-      } else {
-        openDoc(i, null);
-      }
-    };
+    div.className = item.type==='folder'?'folderCard':'docCard';
+    div.innerHTML = `<span>${item.type==='folder'?'📁':'📝'}</span>${item.name}`;
+    div.onclick = ()=>{ item.type==='folder'?openFolder(i):openDoc(i,null); };
     fileList.appendChild(div);
   });
 }
 
-// Nueva carpeta
-document.getElementById('newFolderBtn').onclick = () => {
-  const name = prompt('Nombre de la carpeta:');
-  if (!name) return;
-  const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
-  data.push({ type: 'folder', name, files: [] });
-  localStorage.setItem('vitvisor_files', JSON.stringify(data));
+// Crear carpeta
+document.getElementById('newFolderBtn').onclick = ()=>{
+  const name=prompt('Nombre de la carpeta:'); if(!name) return;
+  const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
+  data.push({type:'folder',name,files:[]});
+  localStorage.setItem('vitvisor_files',JSON.stringify(data));
   loadFiles();
 };
 
-// Nuevo documento
-document.getElementById('newDocBtn').onclick = () => {
-  const name = prompt('Nombre del documento:');
-  if (!name) return;
-  const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
-  if (currentFolder !== null) {
-    data[currentFolder].files.push({ type: 'doc', name, content: '' });
-  } else {
-    data.push({ type: 'doc', name, content: '' });
-  }
-  localStorage.setItem('vitvisor_files', JSON.stringify(data));
+// Crear documento
+document.getElementById('newDocBtn').onclick = ()=>{
+  const name=prompt('Nombre del documento:'); if(!name) return;
+  const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
+  if(currentFolder!==null) data[currentFolder].files.push({type:'doc',name,content:''});
+  else data.push({type:'doc',name,content:''});
+  localStorage.setItem('vitvisor_files',JSON.stringify(data));
   loadFiles();
 };
 
 // Abrir carpeta
-function openFolder(index) {
-  currentFolder = index;
-  fileList.innerHTML = '';
-  const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
-  const folder = data[index];
-
-  const back = document.createElement('button');
-  back.textContent = '⬅️ Volver';
-  back.onclick = () => { currentFolder = null; loadFiles(); };
+function openFolder(index){
+  currentFolder=index; fileList.innerHTML='';
+  const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]'); const folder=data[index];
+  const back=document.createElement('button'); back.textContent='⬅️ Volver'; back.onclick=()=>{currentFolder=null;loadFiles();};
   fileList.appendChild(back);
-
-  folder.files.forEach((f, j) => {
-    const div = document.createElement('div');
-    div.className = 'document';
-    div.textContent = f.name;
-    div.onclick = () => openDoc(j, index);
-    fileList.appendChild(div);
+  folder.files.forEach((f,j)=>{
+    const div=document.createElement('div'); div.className='docCard'; div.innerHTML=`<span>📝</span>${f.name}`;
+    div.onclick=()=>openDoc(j,index); fileList.appendChild(div);
   });
-
-  const newDocBtn = document.createElement('button');
-  newDocBtn.textContent = '📝 Nuevo documento';
-  newDocBtn.onclick = () => {
-    const name = prompt('Nombre del documento:');
-    if (!name) return;
-    folder.files.push({ type: 'doc', name, content: '' });
-    data[index] = folder;
-    localStorage.setItem('vitvisor_files', JSON.stringify(data));
-    openFolder(index);
+  const newDocBtn=document.createElement('button'); newDocBtn.textContent='📝 Nuevo documento'; 
+  newDocBtn.onclick=()=>{
+    const name=prompt('Nombre del documento:'); if(!name) return; folder.files.push({type:'doc',name,content:''});
+    data[index]=folder; localStorage.setItem('vitvisor_files',JSON.stringify(data)); openFolder(index);
   };
   fileList.appendChild(newDocBtn);
 }
 
 // Abrir documento
-function openDoc(docIndex, folderIndex) {
-  const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
-  let doc;
-  if (folderIndex !== null) {
-    doc = data[folderIndex].files[docIndex];
-    currentFolder = folderIndex;
-  } else {
-    doc = data[docIndex];
-    currentFolder = null;
-  }
-  currentDoc = docIndex;
-  docTitle.textContent = doc.name;
-  editorArea.innerHTML = doc.content || "";
-  home.classList.remove('active');
-  editor.classList.add('active');
+function openDoc(docIndex, folderIndex){
+  const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]'); let doc;
+  if(folderIndex!==null){ doc=data[folderIndex].files[docIndex]; currentFolder=folderIndex; }
+  else { doc=data[docIndex]; currentFolder=null; }
+  currentDoc=docIndex; docTitle.textContent=doc.name; editorArea.innerHTML=doc.content||"";
+  home.classList.remove('active'); editor.classList.add('active');
 }
 
 // Guardar
-document.getElementById('saveBtn').onclick = () => {
-  if (currentDoc === null) return;
-  const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
-  if (currentFolder !== null) {
-    data[currentFolder].files[currentDoc].content = editorArea.innerHTML;
-  } else {
-    data[currentDoc].content = editorArea.innerHTML;
-  }
-  localStorage.setItem('vitvisor_files', JSON.stringify(data));
+document.getElementById('saveBtn').onclick = ()=>{
+  if(currentDoc===null) return;
+  const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
+  if(currentFolder!==null) data[currentFolder].files[currentDoc].content=editorArea.innerHTML;
+  else data[currentDoc].content=editorArea.innerHTML;
+  localStorage.setItem('vitvisor_files',JSON.stringify(data));
   alert('Documento guardado 💾');
 };
 
 // Imagen
-document.getElementById('addImgBtn').onclick = () => {
-  const url = prompt('Introduce la URL de la imagen:');
-  if (url) document.execCommand('insertImage', false, url);
+document.getElementById('addImgBtn').onclick = ()=>{
+  const url=prompt('Introduce la URL de la imagen:'); if(url) document.execCommand('insertImage',false,url);
+};
+
+// Tabla
+document.getElementById('addTableBtn').onclick = ()=>{
+  const rows=parseInt(prompt('Número de filas:',2)); if(!rows) return;
+  const cols=parseInt(prompt('Número de columnas:',2)); if(!cols) return;
+  const table=document.createElement('table');
+  for(let r=0;r<rows;r++){
+    const tr=document.createElement('tr');
+    for(let c=0;c<cols;c++){
+      const td=document.createElement('td'); td.textContent='Texto';
+      td.contentEditable=true; td.onclick=()=>{
+        const bg=prompt('Color de fondo (hex o nombre):',td.style.backgroundColor);
+        if(bg) td.style.backgroundColor=bg;
+      };
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  }
+  editorArea.appendChild(table);
 };
 
 // Color de texto
-colorPicker.onchange = () => {
-  document.execCommand('foreColor', false, colorPicker.value);
-};
+colorPicker.onchange = ()=>document.execCommand('foreColor', false, colorPicker.value);
 
-// Zoom
-document.getElementById('zoomInBtn').onclick = () => {
-  zoom += 0.1;
-  editorArea.style.transform = `scale(${zoom})`;
-  editorArea.style.transformOrigin = "top left";
-};
-document.getElementById('zoomOutBtn').onclick = () => {
-  zoom = Math.max(0.5, zoom - 0.1);
-  editorArea.style.transform = `scale(${zoom})`;
-  editorArea.style.transformOrigin = "top left";
-};
+// Tamaño de letra
+fontSizeSelect.onchange = ()=>{ const size=fontSizeSelect.value; if(size) document.execCommand('fontSize', false, size); };
 
 // Volver al inicio
-document.getElementById('backBtn').onclick = () => {
-  editor.classList.remove('active');
-  home.classList.add('active');
-  loadFiles();
+document.getElementById('backBtn').onclick = ()=>{
+  editor.classList.remove('active'); home.classList.add('active'); loadFiles();
 };
 
 // Formato
-function format(cmd, value = null) {
-  document.execCommand(cmd, false, value);
-}
+function format(cmd,value=null){ document.execCommand(cmd,false,value); }
 
-// Iniciar
 loadFiles();
 </script>
 </body>
