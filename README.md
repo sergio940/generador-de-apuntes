@@ -55,9 +55,10 @@ button:hover {
   border-bottom: 1px solid #ccc;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
+  align-items: center;
 }
-#editorToolbar button, #editorToolbar select {
+#editorToolbar button, #editorToolbar select, #editorToolbar input[type=color] {
   background: #0078d7;
   color: white;
   border: none;
@@ -65,15 +66,22 @@ button:hover {
   padding: 6px 10px;
   cursor: pointer;
 }
+#editorToolbar input[type=color] {
+  width: 40px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
 #editorArea {
   width: 100%;
   height: 70vh;
-  padding: 20px;
+  padding: 30px;
   background: white;
   border: none;
   outline: none;
-  resize: none;
   overflow-y: auto;
+  transition: transform 0.2s ease;
 }
 #docTitle {
   margin: 15px 0;
@@ -110,6 +118,9 @@ button:hover {
       <option value="5">Grande</option>
       <option value="7">Muy grande</option>
     </select>
+    <input type="color" id="colorPicker" title="Color de texto">
+    <button id="zoomInBtn">🔍+</button>
+    <button id="zoomOutBtn">🔍-</button>
     <button id="addImgBtn">🖼️ Imagen</button>
     <button id="saveBtn">💾 Guardar</button>
   </div>
@@ -123,10 +134,17 @@ const editor = document.getElementById('editor');
 const fileList = document.getElementById('fileList');
 const editorArea = document.getElementById('editorArea');
 const docTitle = document.getElementById('docTitle');
+const colorPicker = document.getElementById('colorPicker');
 let currentDoc = null;
 let currentFolder = null;
+let zoom = 1;
 
-// Función: cargar archivos y carpetas
+// Evitar caracteres extraños (bug primera letra)
+document.addEventListener('keydown', e => {
+  if (e.key === 'Dead') e.preventDefault();
+});
+
+// Cargar archivos
 function loadFiles() {
   fileList.innerHTML = '';
   const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
@@ -146,7 +164,7 @@ function loadFiles() {
   });
 }
 
-// Crear nueva carpeta
+// Nueva carpeta
 document.getElementById('newFolderBtn').onclick = () => {
   const name = prompt('Nombre de la carpeta:');
   if (!name) return;
@@ -156,7 +174,7 @@ document.getElementById('newFolderBtn').onclick = () => {
   loadFiles();
 };
 
-// Crear nuevo documento
+// Nuevo documento
 document.getElementById('newDocBtn').onclick = () => {
   const name = prompt('Nombre del documento:');
   if (!name) return;
@@ -216,12 +234,12 @@ function openDoc(docIndex, folderIndex) {
   }
   currentDoc = docIndex;
   docTitle.textContent = doc.name;
-  editorArea.innerHTML = doc.content;
+  editorArea.innerHTML = doc.content || "";
   home.classList.remove('active');
   editor.classList.add('active');
 }
 
-// Guardar documento
+// Guardar
 document.getElementById('saveBtn').onclick = () => {
   if (currentDoc === null) return;
   const data = JSON.parse(localStorage.getItem('vitvisor_files') || '[]');
@@ -234,10 +252,27 @@ document.getElementById('saveBtn').onclick = () => {
   alert('Documento guardado 💾');
 };
 
-// Insertar imagen
+// Imagen
 document.getElementById('addImgBtn').onclick = () => {
   const url = prompt('Introduce la URL de la imagen:');
   if (url) document.execCommand('insertImage', false, url);
+};
+
+// Color de texto
+colorPicker.onchange = () => {
+  document.execCommand('foreColor', false, colorPicker.value);
+};
+
+// Zoom
+document.getElementById('zoomInBtn').onclick = () => {
+  zoom += 0.1;
+  editorArea.style.transform = `scale(${zoom})`;
+  editorArea.style.transformOrigin = "top left";
+};
+document.getElementById('zoomOutBtn').onclick = () => {
+  zoom = Math.max(0.5, zoom - 0.1);
+  editorArea.style.transform = `scale(${zoom})`;
+  editorArea.style.transformOrigin = "top left";
 };
 
 // Volver al inicio
@@ -247,12 +282,12 @@ document.getElementById('backBtn').onclick = () => {
   loadFiles();
 };
 
-// Funciones de formato
+// Formato
 function format(cmd, value = null) {
   document.execCommand(cmd, false, value);
 }
 
-// Inicializar
+// Iniciar
 loadFiles();
 </script>
 </body>
