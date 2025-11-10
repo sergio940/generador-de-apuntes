@@ -2,7 +2,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestor de Apuntes Local - Estilo Word</title>
+<title>Word Local - Vitvisor Notes</title>
 <style>
     * { box-sizing: border-box; }
     body {
@@ -14,7 +14,6 @@
         flex-direction: column;
     }
 
-    /* Barra superior */
     header {
         background-color: #1e293b;
         color: white;
@@ -26,7 +25,7 @@
         font-weight: bold;
     }
 
-    /* Contenedor principal */
+    /* Pantalla inicial */
     #inicio, #editorView {
         flex: 1;
         display: none;
@@ -35,87 +34,74 @@
         display: flex;
     }
 
-    /* Vista tipo Word */
     #inicio {
         justify-content: center;
-        align-items: center;
+        align-items: flex-start;
         background-color: #f8fafc;
-        padding: 40px;
+        padding: 50px;
+        gap: 40px;
+        flex-wrap: wrap;
+        overflow-y: auto;
     }
 
-    .inicio-container {
-        display: flex;
-        width: 80%;
-        gap: 50px;
-    }
-
-    .nuevo-panel {
-        width: 50%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .nuevo-doc {
+    .doc-card {
+        width: 220px;
+        height: 260px;
         background-color: white;
-        border: 3px solid #0ea5e9;
-        width: 180px;
-        height: 220px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 20px;
-        color: #0ea5e9;
-        border-radius: 10px;
-        cursor: pointer;
-        transition: 0.2s;
-        font-weight: bold;
-    }
-
-    .nuevo-doc:hover {
-        background-color: #e0f2fe;
-        transform: scale(1.03);
-    }
-
-    .recientes-panel {
-        width: 50%;
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .recientes-panel h3 {
-        color: #0ea5e9;
-        border-bottom: 2px solid #0ea5e9;
-        padding-bottom: 8px;
-        margin-top: 0;
-    }
-
-    .archivo-item {
-        padding: 10px;
-        border-radius: 5px;
-        margin: 5px 0;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .archivo-item:hover {
-        background-color: #e2e8f0;
-    }
-
-    /* Vista del editor */
-    #editorView {
         flex-direction: column;
-        height: 100%;
+        justify-content: space-between;
+        padding: 15px;
+        cursor: pointer;
+        transition: 0.2s;
     }
 
+    .doc-card:hover {
+        transform: scale(1.03);
+        border: 3px solid #0ea5e9;
+    }
+
+    .doc-card h3 {
+        margin: 0;
+        font-size: 16px;
+        color: #0f172a;
+        text-align: center;
+    }
+
+    .preview {
+        background-color: #f1f5f9;
+        flex-grow: 1;
+        padding: 10px;
+        font-size: 13px;
+        overflow: hidden;
+        color: #475569;
+        border-radius: 6px;
+    }
+
+    /* Botón de nuevo documento */
+    .nuevo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        color: #0ea5e9;
+        background-color: white;
+        border: 3px dashed #0ea5e9;
+        transition: 0.2s;
+    }
+    .nuevo:hover {
+        background-color: #e0f2fe;
+    }
+
+    /* Editor */
     #toolbar {
         background-color: #0ea5e9;
         display: flex;
         gap: 10px;
         padding: 10px;
+        flex-wrap: wrap;
     }
 
     #toolbar button {
@@ -135,70 +121,72 @@
 
     #editor {
         flex: 1;
+        padding: 20px;
+        background-color: white;
+        overflow-y: auto;
+        line-height: 1.6;
+        font-size: 17px;
         border: none;
         outline: none;
-        padding: 20px;
-        font-size: 18px;
-        resize: none;
-        line-height: 1.6;
-        background-color: #ffffff;
-        width: 100%;
     }
 </style>
 </head>
 <body>
 
-<header>
-    📘 Gestor de Apuntes Local
-</header>
+<header>📝 Vitvisor Word Local</header>
 
-<!-- Pantalla inicial -->
-<div id="inicio" class="active">
-    <div class="inicio-container">
-        <div class="nuevo-panel">
-            <div class="nuevo-doc" onclick="nuevoDocumento()">📝 Nuevo Documento</div>
-        </div>
-        <div class="recientes-panel">
-            <h3>Documentos guardados</h3>
-            <div id="listaDocumentos"></div>
-        </div>
-    </div>
-</div>
+<!-- Vista inicial -->
+<div id="inicio" class="active" id="homeView"></div>
 
 <!-- Vista del editor -->
 <div id="editorView">
     <div id="toolbar">
         <button onclick="guardarArchivo()">💾 Guardar</button>
-        <button onclick="renombrarArchivo()">✏️ Renombrar</button>
-        <button onclick="volverInicio()">🏠 Volver</button>
-        <button onclick="exportarArchivo()">⬇️ Exportar .txt</button>
+        <button onclick="volverInicio()">🏠 Inicio</button>
+        <button onclick="document.execCommand('bold',false,null)">𝐍</button>
+        <button onclick="document.execCommand('italic',false,null)">𝑰</button>
+        <button onclick="document.execCommand('underline',false,null)">U̲</button>
+        <button onclick="insertarImagen()">🖼️ Imagen</button>
+        <button onclick="exportarDOC()">⬇️ Exportar Word</button>
     </div>
-    <textarea id="editor" placeholder="Escribe aquí tus apuntes..."></textarea>
+    <div id="editor" contenteditable="true"></div>
 </div>
 
 <script>
-let documentos = JSON.parse(localStorage.getItem("apuntes_wordstyle")) || {};
+let documentos = JSON.parse(localStorage.getItem("word_vitvisor_docs")) || {};
 let archivoActual = null;
 
 function guardarDatos() {
-    localStorage.setItem("apuntes_wordstyle", JSON.stringify(documentos));
+    localStorage.setItem("word_vitvisor_docs", JSON.stringify(documentos));
 }
 
-function renderizarLista() {
-    const contenedor = document.getElementById("listaDocumentos");
+function renderInicio() {
+    const contenedor = document.getElementById("inicio");
     contenedor.innerHTML = "";
 
-    if (Object.keys(documentos).length === 0) {
-        contenedor.innerHTML = "<p style='color:#94a3b8'>No hay documentos aún.</p>";
-        return;
-    }
+    // Botón nuevo documento
+    const nuevo = document.createElement("div");
+    nuevo.className = "doc-card nuevo";
+    nuevo.innerHTML = "+";
+    nuevo.onclick = nuevoDocumento;
+    contenedor.appendChild(nuevo);
 
+    // Mostrar documentos guardados
     for (let nombre in documentos) {
-        const div = document.createElement("div");
-        div.className = "archivo-item";
-        div.textContent = "📄 " + nombre;
-        div.onclick = () => abrirDocumento(nombre);
-        contenedor.appendChild(div);
+        const doc = document.createElement("div");
+        doc.className = "doc-card";
+        doc.onclick = () => abrirDocumento(nombre);
+
+        const titulo = document.createElement("h3");
+        titulo.textContent = nombre;
+
+        const prev = document.createElement("div");
+        prev.className = "preview";
+        prev.innerHTML = documentos[nombre].substring(0, 200) || "<i>Vacío...</i>";
+
+        doc.appendChild(titulo);
+        doc.appendChild(prev);
+        contenedor.appendChild(doc);
     }
 }
 
@@ -208,9 +196,9 @@ function nuevoDocumento() {
         documentos[nombre] = "";
         archivoActual = nombre;
         cambiarVista("editor");
-        document.getElementById("editor").value = "";
+        document.getElementById("editor").innerHTML = "";
         guardarDatos();
-        renderizarLista();
+        renderInicio();
     } else if (documentos[nombre]) {
         alert("Ya existe un documento con ese nombre.");
     }
@@ -218,55 +206,62 @@ function nuevoDocumento() {
 
 function abrirDocumento(nombre) {
     archivoActual = nombre;
-    document.getElementById("editor").value = documentos[nombre];
     cambiarVista("editor");
+    document.getElementById("editor").innerHTML = documentos[nombre];
 }
 
 function guardarArchivo() {
     if (!archivoActual) return;
-    documentos[archivoActual] = document.getElementById("editor").value;
+    documentos[archivoActual] = document.getElementById("editor").innerHTML;
     guardarDatos();
     alert("✅ Documento guardado correctamente.");
-}
-
-function renombrarArchivo() {
-    if (!archivoActual) return;
-    const nuevo = prompt("Nuevo nombre:", archivoActual);
-    if (nuevo && nuevo !== archivoActual) {
-        documentos[nuevo] = documentos[archivoActual];
-        delete documentos[archivoActual];
-        archivoActual = nuevo;
-        guardarDatos();
-        renderizarLista();
-        alert("✅ Documento renombrado.");
-    }
 }
 
 function volverInicio() {
     guardarArchivo();
     cambiarVista("inicio");
-    renderizarLista();
+    renderInicio();
 }
 
-function exportarArchivo() {
+function insertarImagen() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const img = document.createElement("img");
+            img.src = evt.target.result;
+            img.style.maxWidth = "400px";
+            img.style.display = "block";
+            img.style.margin = "10px 0";
+            document.getElementById("editor").appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
+
+function exportarDOC() {
     if (!archivoActual) return;
-    const contenido = documentos[archivoActual];
-    const blob = new Blob([contenido], { type: "text/plain" });
+    const contenido = document.getElementById("editor").innerHTML;
+    const blob = new Blob(['<html><body>' + contenido + '</body></html>'], { type: 'application/msword' });
     const enlace = document.createElement("a");
     enlace.href = URL.createObjectURL(blob);
-    enlace.download = archivoActual + ".txt";
+    enlace.download = archivoActual + ".doc";
     enlace.click();
 }
 
 function cambiarVista(vista) {
     document.getElementById("inicio").classList.remove("active");
     document.getElementById("editorView").classList.remove("active");
-
     if (vista === "inicio") document.getElementById("inicio").classList.add("active");
     else document.getElementById("editorView").classList.add("active");
 }
 
-renderizarLista();
+renderInicio();
 </script>
 
 </body>
