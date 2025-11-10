@@ -77,6 +77,7 @@ button:hover { background: var(--toolbar-btn-hover); }
   cursor: pointer;
   text-align: center;
   transition: 0.3s transform, 0.3s background;
+  position: relative;
 }
 .folderCard:hover, .docCard:hover {
   transform: translateY(-5px);
@@ -85,6 +86,15 @@ button:hover { background: var(--toolbar-btn-hover); }
 .folderCard span, .docCard span {
   font-size: 50px;
   margin-bottom: 10px;
+}
+.deleteBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #E53935;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: var(--border-radius);
 }
 
 #editorToolbar {
@@ -182,7 +192,6 @@ table td, table th {
 </section>
 
 <script>
-// Variables globales
 const home=document.getElementById('home');
 const editor=document.getElementById('editor');
 const fileList=document.getElementById('fileList');
@@ -200,11 +209,15 @@ document.addEventListener('keydown', e => { if(e.key==='Dead') e.preventDefault(
 function loadFiles(){
   fileList.innerHTML='';
   const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
+
   data.forEach((item,i)=>{
     const div=document.createElement('div');
     div.className=item.type==='folder'?'folderCard':'docCard';
-    div.innerHTML=`<span>${item.type==='folder'?'📁':'📝'}</span>${item.name}`;
-    div.onclick=()=>{item.type==='folder'?openFolder(i):openDoc(i,null);};
+    div.innerHTML=`
+      <span>${item.type==='folder'?'📁':'📝'}</span>${item.name}
+      <button class="deleteBtn" onclick="deleteItem(${i}); event.stopPropagation();">🗑️</button>
+    `;
+    div.onclick=()=>{ item.type==='folder'?openFolder(i):openDoc(i,null); };
     fileList.appendChild(div);
   });
 }
@@ -234,10 +247,18 @@ function openFolder(index){
   const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]'); const folder=data[index];
   const back=document.createElement('button'); back.textContent='⬅️ Volver'; back.onclick=()=>{currentFolder=null;loadFiles();};
   fileList.appendChild(back);
+
   folder.files.forEach((f,j)=>{
-    const div=document.createElement('div'); div.className='docCard'; div.innerHTML=`<span>📝</span>${f.name}`;
-    div.onclick=()=>openDoc(j,index); fileList.appendChild(div);
+    const div=document.createElement('div');
+    div.className='docCard';
+    div.innerHTML=`
+      <span>📝</span>${f.name}
+      <button class="deleteBtn" onclick="deleteDoc(${j}); event.stopPropagation();">🗑️</button>
+    `;
+    div.onclick=()=>openDoc(j,index);
+    fileList.appendChild(div);
   });
+
   const newDocBtn=document.createElement('button'); newDocBtn.textContent='📝 Nuevo documento'; 
   newDocBtn.onclick=()=>{
     const name=prompt('Nombre del documento:'); if(!name) return; folder.files.push({type:'doc',name,content:''});
@@ -304,6 +325,26 @@ document.getElementById('backBtn').onclick=()=>{ editor.classList.remove('active
 
 // Formato
 function format(cmd,value=null){ document.execCommand(cmd,false,value); }
+
+// Eliminar carpeta o documento desde home
+function deleteItem(index){
+  if(!confirm('¿Seguro que quieres eliminar este elemento?')) return;
+  const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
+  data.splice(index,1);
+  localStorage.setItem('vitvisor_files',JSON.stringify(data));
+  loadFiles();
+}
+
+// Eliminar documento dentro de carpeta
+function deleteDoc(docIndex){
+  if(!confirm('¿Seguro que quieres eliminar este documento?')) return;
+  const data=JSON.parse(localStorage.getItem('vitvisor_files')||'[]');
+  if(currentFolder!==null){
+    data[currentFolder].files.splice(docIndex,1);
+    localStorage.setItem('vitvisor_files',JSON.stringify(data));
+    openFolder(currentFolder);
+  }
+}
 
 loadFiles();
 </script>
