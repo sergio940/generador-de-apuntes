@@ -2,247 +2,255 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestor de Apuntes Local</title>
+<title>Gestor de Apuntes Local - Estilo Word</title>
 <style>
-    * {
-        box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
         margin: 0;
         font-family: "Segoe UI", sans-serif;
-        display: flex;
-        height: 100vh;
         background-color: #f1f5f9;
-    }
-
-    /* Sidebar */
-    #sidebar {
-        width: 320px;
-        background-color: #1e293b;
-        color: white;
+        height: 100vh;
         display: flex;
         flex-direction: column;
-        padding: 20px;
-        overflow-y: auto;
-        border-right: 3px solid #0ea5e9;
     }
 
-    #sidebar h2 {
-        text-align: center;
-        color: #38bdf8;
-        margin-bottom: 20px;
-    }
-
-    button {
-        background-color: #38bdf8;
+    /* Barra superior */
+    header {
+        background-color: #1e293b;
         color: white;
-        border: none;
-        padding: 8px 12px;
-        border-radius: 6px;
-        margin: 6px 0;
-        cursor: pointer;
-        font-size: 14px;
-        width: 100%;
+        padding: 15px 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 20px;
         font-weight: bold;
-        transition: background 0.2s ease;
     }
 
-    button:hover {
-        background-color: #0284c7;
+    /* Contenedor principal */
+    #inicio, #editorView {
+        flex: 1;
+        display: none;
+    }
+    #inicio.active, #editorView.active {
+        display: flex;
     }
 
-    .folder, .file {
-        margin: 4px 0 4px 10px;
-        padding: 6px;
+    /* Vista tipo Word */
+    #inicio {
+        justify-content: center;
+        align-items: center;
+        background-color: #f8fafc;
+        padding: 40px;
+    }
+
+    .inicio-container {
+        display: flex;
+        width: 80%;
+        gap: 50px;
+    }
+
+    .nuevo-panel {
+        width: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nuevo-doc {
+        background-color: white;
+        border: 3px solid #0ea5e9;
+        width: 180px;
+        height: 220px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        color: #0ea5e9;
+        border-radius: 10px;
         cursor: pointer;
+        transition: 0.2s;
+        font-weight: bold;
+    }
+
+    .nuevo-doc:hover {
+        background-color: #e0f2fe;
+        transform: scale(1.03);
+    }
+
+    .recientes-panel {
+        width: 50%;
+        background-color: #ffffff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .recientes-panel h3 {
+        color: #0ea5e9;
+        border-bottom: 2px solid #0ea5e9;
+        padding-bottom: 8px;
+        margin-top: 0;
+    }
+
+    .archivo-item {
+        padding: 10px;
         border-radius: 5px;
+        margin: 5px 0;
+        cursor: pointer;
         transition: 0.2s;
     }
 
-    .folder:hover, .file:hover {
-        background-color: #334155;
+    .archivo-item:hover {
+        background-color: #e2e8f0;
     }
 
-    .file.active {
-        background-color: #38bdf8;
-        color: black;
-        font-weight: bold;
-    }
-
-    /* Editor */
-    #main {
-        flex: 1;
-        display: flex;
+    /* Vista del editor */
+    #editorView {
         flex-direction: column;
+        height: 100%;
     }
 
     #toolbar {
         background-color: #0ea5e9;
-        padding: 10px;
         display: flex;
         gap: 10px;
-        justify-content: flex-start;
+        padding: 10px;
     }
 
     #toolbar button {
-        width: auto;
-        padding: 8px 15px;
-        border-radius: 8px;
-        background-color: white;
+        background: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
         color: #0ea5e9;
         font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
     }
 
     #toolbar button:hover {
-        background-color: #f0f9ff;
+        background-color: #e0f2fe;
     }
 
     #editor {
         flex: 1;
-        padding: 20px;
-        font-size: 18px;
         border: none;
         outline: none;
+        padding: 20px;
+        font-size: 18px;
         resize: none;
-        background-color: white;
-        width: 100%;
-        height: 100%;
         line-height: 1.6;
-        color: #0f172a;
+        background-color: #ffffff;
+        width: 100%;
     }
-
 </style>
 </head>
 <body>
 
-<div id="sidebar">
-    <h2>📁 Mis Apuntes</h2>
-    <button onclick="crearCarpeta()">➕ Nueva Carpeta</button>
-    <div id="estructura"></div>
+<header>
+    📘 Gestor de Apuntes Local
+</header>
+
+<!-- Pantalla inicial -->
+<div id="inicio" class="active">
+    <div class="inicio-container">
+        <div class="nuevo-panel">
+            <div class="nuevo-doc" onclick="nuevoDocumento()">📝 Nuevo Documento</div>
+        </div>
+        <div class="recientes-panel">
+            <h3>Documentos guardados</h3>
+            <div id="listaDocumentos"></div>
+        </div>
+    </div>
 </div>
 
-<div id="main">
+<!-- Vista del editor -->
+<div id="editorView">
     <div id="toolbar">
         <button onclick="guardarArchivo()">💾 Guardar</button>
         <button onclick="renombrarArchivo()">✏️ Renombrar</button>
-        <button onclick="eliminarArchivo()">🗑️ Eliminar</button>
+        <button onclick="volverInicio()">🏠 Volver</button>
         <button onclick="exportarArchivo()">⬇️ Exportar .txt</button>
     </div>
-    <textarea id="editor" placeholder="Crea o selecciona un archivo para escribir tus apuntes..."></textarea>
+    <textarea id="editor" placeholder="Escribe aquí tus apuntes..."></textarea>
 </div>
 
 <script>
-let datos = JSON.parse(localStorage.getItem("apuntes_locales_v2")) || {};
-let carpetaActual = null;
+let documentos = JSON.parse(localStorage.getItem("apuntes_wordstyle")) || {};
 let archivoActual = null;
 
 function guardarDatos() {
-    localStorage.setItem("apuntes_locales_v2", JSON.stringify(datos));
+    localStorage.setItem("apuntes_wordstyle", JSON.stringify(documentos));
 }
 
-function renderizarEstructura() {
-    const estructura = document.getElementById("estructura");
-    estructura.innerHTML = "";
-    for (let carpeta in datos) {
-        const divCarpeta = document.createElement("div");
-        divCarpeta.className = "folder";
-        divCarpeta.innerHTML = `📂 <strong>${carpeta}</strong>`;
+function renderizarLista() {
+    const contenedor = document.getElementById("listaDocumentos");
+    contenedor.innerHTML = "";
 
-        const btnArchivo = document.createElement("button");
-        btnArchivo.textContent = "📄 Nuevo archivo";
-        btnArchivo.style.marginTop = "5px";
-        btnArchivo.style.fontSize = "12px";
-        btnArchivo.onclick = (e) => {
-            e.stopPropagation();
-            crearArchivo(carpeta);
-        };
+    if (Object.keys(documentos).length === 0) {
+        contenedor.innerHTML = "<p style='color:#94a3b8'>No hay documentos aún.</p>";
+        return;
+    }
 
-        estructura.appendChild(divCarpeta);
-        estructura.appendChild(btnArchivo);
-
-        for (let archivo in datos[carpeta]) {
-            const divArchivo = document.createElement("div");
-            divArchivo.className = "file";
-            divArchivo.textContent = "📝 " + archivo;
-            if (carpeta === carpetaActual && archivo === archivoActual) {
-                divArchivo.classList.add("active");
-            }
-            divArchivo.onclick = () => seleccionarArchivo(carpeta, archivo);
-            estructura.appendChild(divArchivo);
-        }
+    for (let nombre in documentos) {
+        const div = document.createElement("div");
+        div.className = "archivo-item";
+        div.textContent = "📄 " + nombre;
+        div.onclick = () => abrirDocumento(nombre);
+        contenedor.appendChild(div);
     }
 }
 
-function crearCarpeta() {
-    const nombre = prompt("Nombre de la nueva carpeta:");
-    if (nombre && !datos[nombre]) {
-        datos[nombre] = {};
+function nuevoDocumento() {
+    const nombre = prompt("Nombre del nuevo documento:");
+    if (nombre && !documentos[nombre]) {
+        documentos[nombre] = "";
+        archivoActual = nombre;
+        cambiarVista("editor");
+        document.getElementById("editor").value = "";
         guardarDatos();
-        renderizarEstructura();
+        renderizarLista();
+    } else if (documentos[nombre]) {
+        alert("Ya existe un documento con ese nombre.");
     }
 }
 
-function crearArchivo(carpeta) {
-    const nombre = prompt("Nombre del nuevo archivo:");
-    if (nombre && !datos[carpeta][nombre]) {
-        datos[carpeta][nombre] = "";
-        guardarDatos();
-        renderizarEstructura();
-    }
-}
-
-function seleccionarArchivo(carpeta, archivo) {
-    carpetaActual = carpeta;
-    archivoActual = archivo;
-    document.getElementById("editor").value = datos[carpeta][archivo];
-    renderizarEstructura();
+function abrirDocumento(nombre) {
+    archivoActual = nombre;
+    document.getElementById("editor").value = documentos[nombre];
+    cambiarVista("editor");
 }
 
 function guardarArchivo() {
-    if (!carpetaActual || !archivoActual) {
-        alert("Selecciona un archivo antes de guardar.");
-        return;
-    }
-    datos[carpetaActual][archivoActual] = document.getElementById("editor").value;
+    if (!archivoActual) return;
+    documentos[archivoActual] = document.getElementById("editor").value;
     guardarDatos();
-    alert("✅ Archivo guardado correctamente.");
+    alert("✅ Documento guardado correctamente.");
 }
 
 function renombrarArchivo() {
-    if (!carpetaActual || !archivoActual) {
-        alert("Selecciona un archivo para renombrar.");
-        return;
-    }
-    const nuevoNombre = prompt("Nuevo nombre del archivo:", archivoActual);
-    if (nuevoNombre && nuevoNombre !== archivoActual) {
-        datos[carpetaActual][nuevoNombre] = datos[carpetaActual][archivoActual];
-        delete datos[carpetaActual][archivoActual];
-        archivoActual = nuevoNombre;
+    if (!archivoActual) return;
+    const nuevo = prompt("Nuevo nombre:", archivoActual);
+    if (nuevo && nuevo !== archivoActual) {
+        documentos[nuevo] = documentos[archivoActual];
+        delete documentos[archivoActual];
+        archivoActual = nuevo;
         guardarDatos();
-        renderizarEstructura();
+        renderizarLista();
+        alert("✅ Documento renombrado.");
     }
 }
 
-function eliminarArchivo() {
-    if (!carpetaActual || !archivoActual) {
-        alert("Selecciona un archivo para eliminar.");
-        return;
-    }
-    if (confirm(`¿Seguro que deseas eliminar "${archivoActual}"?`)) {
-        delete datos[carpetaActual][archivoActual];
-        document.getElementById("editor").value = "";
-        archivoActual = null;
-        guardarDatos();
-        renderizarEstructura();
-    }
+function volverInicio() {
+    guardarArchivo();
+    cambiarVista("inicio");
+    renderizarLista();
 }
 
 function exportarArchivo() {
-    if (!carpetaActual || !archivoActual) {
-        alert("Selecciona un archivo para exportar.");
-        return;
-    }
-    const contenido = datos[carpetaActual][archivoActual];
+    if (!archivoActual) return;
+    const contenido = documentos[archivoActual];
     const blob = new Blob([contenido], { type: "text/plain" });
     const enlace = document.createElement("a");
     enlace.href = URL.createObjectURL(blob);
@@ -250,7 +258,15 @@ function exportarArchivo() {
     enlace.click();
 }
 
-renderizarEstructura();
+function cambiarVista(vista) {
+    document.getElementById("inicio").classList.remove("active");
+    document.getElementById("editorView").classList.remove("active");
+
+    if (vista === "inicio") document.getElementById("inicio").classList.add("active");
+    else document.getElementById("editorView").classList.add("active");
+}
+
+renderizarLista();
 </script>
 
 </body>
